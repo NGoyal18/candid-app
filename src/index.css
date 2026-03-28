@@ -1,0 +1,17 @@
+@import "tailwindcss";
+@config "../tailwind.config.ts";
+
+@layer base {
+  * {
+    @apply box-border;
+  }
+
+  body {
+    @apply m-0 bg-zinc-50 text-zinc-900 antialiased;
+    font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+
+  #root {
+    @apply min-h-screen;
+  }
+}
