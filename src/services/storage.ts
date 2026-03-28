@@ -1,6 +1,6 @@
 import type { SkinProfile } from '../features/onboarding/types'
 
-const PROFILE_STORAGE_KEY = 'skinsense.profile.v1'
+const PROFILE_STORAGE_KEY = 'candid.profile.v1'
 
 export function saveSkinProfile(profile: SkinProfile): void {
   localStorage.setItem(PROFILE_STORAGE_KEY, JSON.stringify(profile))

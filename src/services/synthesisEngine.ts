@@ -8,7 +8,7 @@ const SENTIMENT_VALUE = {
   negative: -1,
 } as const
 
-const MINIMUM_SOURCES = 0
+const MINIMUM_SOURCES = 5
 
 export interface VerdictHighlight {
   sourceName: string
@@ -152,8 +152,8 @@ export function synthesizeVerdict(
   profile: SkinProfile,
   reviews: ReviewSource[],
 ): Verdict {
-  if (reviews.length === 0) {
-    return { status: 'insufficient', totalSources: 0 }
+  if (reviews.length < MINIMUM_SOURCES) {
+    return { status: 'insufficient', totalSources: reviews.length }
   }
 
   const weighted = reviews.map((review) => {

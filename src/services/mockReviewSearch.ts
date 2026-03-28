@@ -110,7 +110,7 @@ function normalizeForReader(url: string): string {
 function classifySourceType(url: string): ReviewSource['sourceType'] {
   const value = url.toLowerCase()
   if (value.includes('reddit.com')) return 'reddit'
-  if (value.includes('influenster.com') || value.includes('makeupalley.com')) return 'community'
+  if (value.includes('influenster.com')) return 'community'
   if (value.includes('forum')) return 'forum'
   return 'blog'
 }
@@ -128,8 +128,9 @@ function classifySourceName(url: string, fallback?: string): string {
 }
 
 async function searchWebResults(product: ParsedProduct): Promise<JinaSearchResult[]> {
+  const shortName = product.name.split(' ').slice(0, 3).join(' ')
   const query = encodeURIComponent(
-    `${product.brand} ${product.name} review reddit influenster makeupalley blog`,
+    `${product.brand} ${shortName} review reddit influenster beauty blog`,
   )
   const response = await fetch(`https://s.jina.ai/?q=${query}&output_format=json`)
   if (!response.ok) {
@@ -155,7 +156,9 @@ async function fetchSourceSnippet(url: string): Promise<string | null> {
 }
 
 async function fetchRedditReviews(product: ParsedProduct): Promise<ReviewSource[]> {
-  const query = encodeURIComponent(`${product.brand} ${product.name} skincare review`)
+  // Use first 3 name words max to keep Reddit query focused.
+  const shortName = product.name.split(' ').slice(0, 3).join(' ')
+  const query = encodeURIComponent(`${product.brand} ${shortName} skincare review`)
   const url = `https://www.reddit.com/search.json?q=${query}&limit=8&sort=relevance&t=all`
   const response = await fetch(url, {
     headers: {
@@ -189,20 +192,28 @@ async function fetchRedditReviews(product: ParsedProduct): Promise<ReviewSource[
     .filter((item) => item.quote.length > 20)
 }
 
+// Domains that are the product's own brand site or a retailer — skip them as review sources.
+const BRAND_DOMAINS = new Set([
+  'sephora.com', 'ulta.com', 'amazon.com', 'target.com',
+  'walmart.com', 'cvs.com', 'walgreens.com', 'dermstore.com',
+  'laroche-posay.us', 'laroche-posay.com', 'cerave.com',
+  'cetaphil.com', 'cosrx.com', 'tatcha.com', 'paulaschoice.com',
+  'theordinary.com', 'skinceuticals.com', 'innisfree.com',
+])
+
 async function fetchCommunityReviewsFromSearch(product: ParsedProduct): Promise<ReviewSource[]> {
   const searchResults = await searchWebResults(product)
   const prioritized = searchResults
     .filter((result) => Boolean(result.url))
     .filter((result) => {
-      const value = (result.url ?? '').toLowerCase()
-      return (
-        value.includes('reddit.com') ||
-        value.includes('influenster.com') ||
-        value.includes('makeupalley.com') ||
-        value.includes('blog')
-      )
+      try {
+        const hostname = new URL(result.url as string).hostname.replace(/^www\./, '')
+        return !BRAND_DOMAINS.has(hostname)
+      } catch {
+        return false
+      }
     })
-    .slice(0, 8)
+    .slice(0, 10)
 
   const snippets = await Promise.allSettled(
     prioritized.map(async (result) => {

@@ -87,9 +87,9 @@ export function OnboardingForm({ initialProfile, onComplete }: OnboardingFormPro
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <div className="space-y-2">
-        <label className="text-sm font-semibold text-zinc-900">1) Skin type</label>
+        <label className="text-[10px] uppercase tracking-[0.2em] text-[#9a8a72]">1) Skin type</label>
         <select
-          className="w-full rounded-xl border border-zinc-300 bg-white px-3 py-2 text-sm"
+          className="w-full border-[1.5px] border-[#d4c4b0] bg-[#fff8f0] px-3 py-2 text-[12px] text-[#1c1208]"
           value={skinType}
           onChange={(event) => setSkinType(event.target.value as SkinProfile['skinType'])}
         >
@@ -102,19 +102,19 @@ export function OnboardingForm({ initialProfile, onComplete }: OnboardingFormPro
       </div>
 
       <div className="space-y-2">
-        <p className="text-sm font-semibold text-zinc-900">2) Skin tone</p>
+        <p className="text-[10px] uppercase tracking-[0.2em] text-[#9a8a72]">2) Skin tone</p>
         <div className="grid grid-cols-3 gap-2">
           {SKIN_TONES.map((tone) => (
             <button
               type="button"
               key={tone}
               onClick={() => setSkinTone(tone)}
-              className={`rounded-xl border px-2 py-3 text-xs font-medium capitalize ${
-                skinTone === tone ? 'border-plum-700 ring-2 ring-plum-200' : 'border-zinc-300'
+              className={`border px-2 py-3 text-[10px] uppercase tracking-[0.1em] ${
+                skinTone === tone ? 'border-[#c45c2e] text-[#1c1208]' : 'border-[#d4c4b0] text-[#9a8a72]'
               }`}
             >
               <span
-                className="mx-auto mb-1 block h-6 w-6 rounded-full border border-zinc-300"
+                className="mx-auto mb-1 block h-6 w-6 border border-[#d4c4b0]"
                 style={{ backgroundColor: toneSwatches[tone] }}
               />
               {tone}
@@ -124,9 +124,9 @@ export function OnboardingForm({ initialProfile, onComplete }: OnboardingFormPro
       </div>
 
       <div className="space-y-2">
-        <label className="text-sm font-semibold text-zinc-900">3) Top concern</label>
+        <label className="text-[10px] uppercase tracking-[0.2em] text-[#9a8a72]">3) Top concern</label>
         <select
-          className="w-full rounded-xl border border-zinc-300 bg-white px-3 py-2 text-sm"
+          className="w-full border-[1.5px] border-[#d4c4b0] bg-[#fff8f0] px-3 py-2 text-[12px] text-[#1c1208]"
           value={topConcern}
           onChange={(event) => {
             const concern = event.target.value as Concern
@@ -143,12 +143,12 @@ export function OnboardingForm({ initialProfile, onComplete }: OnboardingFormPro
       </div>
 
       <div className="space-y-2">
-        <p className="text-sm font-semibold text-zinc-900">4) Secondary concerns (up to 2)</p>
+        <p className="text-[10px] uppercase tracking-[0.2em] text-[#9a8a72]">4) Secondary concerns (up to 2)</p>
         <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
           {availableSecondaryConcerns.map((concern) => (
             <label
               key={concern}
-              className="flex items-center gap-2 rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm"
+              className="flex items-center gap-2 border border-[#d4c4b0] bg-[#fff8f0] px-3 py-2 text-[11px] text-[#1c1208]"
             >
               <input
                 type="checkbox"
@@ -162,9 +162,9 @@ export function OnboardingForm({ initialProfile, onComplete }: OnboardingFormPro
       </div>
 
       <div className="space-y-2">
-        <label className="text-sm font-semibold text-zinc-900">5) Sensitivity</label>
+        <label className="text-[10px] uppercase tracking-[0.2em] text-[#9a8a72]">5) Sensitivity</label>
         <select
-          className="w-full rounded-xl border border-zinc-300 bg-white px-3 py-2 text-sm"
+          className="w-full border-[1.5px] border-[#d4c4b0] bg-[#fff8f0] px-3 py-2 text-[12px] text-[#1c1208]"
           value={sensitivity}
           onChange={(event) => setSensitivity(event.target.value as SkinProfile['sensitivity'])}
         >
@@ -177,12 +177,12 @@ export function OnboardingForm({ initialProfile, onComplete }: OnboardingFormPro
       </div>
 
       {error ? (
-        <p className="rounded-xl border border-rose-300 bg-rose-50 p-3 text-sm text-rose-700">{error}</p>
+        <p className="border border-[#d4c4b0] bg-[#fff8f0] p-3 text-[11px] text-[#c45c2e]">{error}</p>
       ) : null}
 
       <button
         type="submit"
-        className="w-full rounded-xl bg-plum-700 px-4 py-3 text-sm font-semibold text-white transition hover:bg-plum-500"
+        className="w-full border-[1.5px] border-[#1c1208] bg-[#fff8f0] px-4 py-3 text-[11px] uppercase tracking-[0.2em] text-[#c45c2e]"
       >
         Save skin profile
       </button>

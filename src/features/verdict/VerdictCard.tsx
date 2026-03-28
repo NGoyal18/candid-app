@@ -1,21 +1,32 @@
 import type { Verdict } from '../../services/synthesisEngine'
 import { useState } from 'react'
+import type { ParsedProduct } from '../../services/productParser'
 
 interface VerdictCardProps {
   verdict: Verdict
+  product: ParsedProduct | null
 }
 
-function confidenceClasses(confidence: 'low' | 'medium' | 'high'): string {
-  if (confidence === 'high') {
-    return 'bg-emerald-100 text-emerald-800'
+function verdictPill(recommendation: string | undefined, score: number | undefined): {
+  label: string
+  classes: string
+} {
+  const shouldNotTry =
+    typeof recommendation === 'string' &&
+    recommendation.toLowerCase().includes('should not try')
+
+  if (shouldNotTry) {
+    return { label: 'skip it', classes: 'border-[1.5px] border-[#b09a80] text-[#9a8a72]' }
   }
-  if (confidence === 'medium') {
-    return 'bg-amber-100 text-amber-900'
+
+  // "should try" path — use score for holy grail vs worth it distinction.
+  if (typeof score === 'number' && score >= 85) {
+    return { label: 'holy grail', classes: 'bg-[#6b8a2a] text-[#f5ede0]' }
   }
-  return 'bg-zinc-200 text-zinc-700'
+  return { label: 'worth it', classes: 'bg-[#c45c2e] text-[#fff8f0]' }
 }
 
-export function VerdictCard({ verdict }: VerdictCardProps) {
+export function VerdictCard({ verdict, product }: VerdictCardProps) {
   const [showSources, setShowSources] = useState(false)
 
   if (verdict.status !== 'ready') {
@@ -23,31 +34,46 @@ export function VerdictCard({ verdict }: VerdictCardProps) {
   }
 
   return (
-    <section className="space-y-4 rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
+    <section className="space-y-4 border-[1.5px] border-[#d4c4b0] bg-[#fff8f0] p-5">
       <header className="space-y-3">
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="rounded-full bg-plum-100 px-3 py-1 text-sm font-semibold text-plum-700">
-            Match score: {verdict.matchScore}/100
+        <div className="flex items-start justify-between gap-3">
+          <div className="space-y-1">
+            <p className="text-[10px] uppercase tracking-[0.2em] text-[#b09a80]">
+              {product?.brand ?? 'brand'}
+            </p>
+            <p className="candid-display text-[18px] leading-[1.2] text-[#1c1208]">
+              {product?.name ?? 'product'}
+            </p>
+          </div>
+          <span
+            className={`px-2 py-1 text-[10px] font-bold uppercase tracking-[0.1em] ${verdictPill(verdict.recommendation, verdict.matchScore).classes}`}
+          >
+            {verdictPill(verdict.recommendation, verdict.matchScore).label}
           </span>
-          {verdict.confidence ? (
-            <span
-              className={`rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-wide ${confidenceClasses(verdict.confidence)}`}
-            >
-              {verdict.confidence} confidence
-            </span>
-          ) : null}
         </div>
+
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="border border-[#d4c4b0] px-2 py-1 text-[10px] uppercase tracking-[0.2em] text-[#9a8a72]">
+            match score: {verdict.matchScore}/100
+          </span>
+          <span className="border border-[#d4c4b0] px-2 py-1 text-[10px] uppercase tracking-[0.2em] text-[#9a8a72]">
+            confidence: {verdict.confidence}
+          </span>
+        </div>
+
         {verdict.recommendation ? (
-          <p className="rounded-xl bg-plum-50 p-3 text-sm font-semibold text-plum-900">
+          <p className="text-[12px] leading-[1.7] text-[#5a4a38]">
             {verdict.recommendation}
+            {verdict.bottomLine ? ` ${verdict.bottomLine}` : null}
           </p>
         ) : null}
+
         {verdict.reasoningSummary ? (
-          <div className="rounded-xl border border-zinc-200 bg-zinc-50 p-3">
-            <p className="mb-2 text-sm font-semibold uppercase tracking-wide text-zinc-500">
+          <div className="border-l-[3px] border-l-[#c45c2e] pl-3">
+            <p className="mb-2 text-[10px] uppercase tracking-[0.2em] text-[#c45c2e]">
               Why this verdict
             </p>
-            <div className="space-y-3 text-sm leading-6 text-zinc-700">
+            <div className="space-y-2 text-[12px] leading-[1.7] text-[#5a4a38]">
               {verdict.reasoningSummary.split('\n\n').filter(Boolean).map((para, i) => (
                 <p key={i}>{para}</p>
               ))}
@@ -56,27 +82,25 @@ export function VerdictCard({ verdict }: VerdictCardProps) {
         ) : null}
       </header>
 
-      <footer className="rounded-xl bg-zinc-100 p-3 text-sm font-medium text-zinc-900">
-        Bottom line: {verdict.bottomLine}
-      </footer>
+      <div className="border-t border-[#d4c4b0]" />
 
-      <section className="space-y-2 rounded-xl border border-zinc-200 p-3">
+      <section className="space-y-2">
         <button
           type="button"
           onClick={() => setShowSources((value) => !value)}
-          className="text-sm font-semibold text-plum-700 hover:text-plum-500"
+          className="text-[10px] uppercase tracking-[0.2em] text-[#c45c2e]"
         >
           {showSources ? 'Hide top 3 sources' : 'Show top 3 sources'}
         </button>
         {showSources ? (
-          <ul className="space-y-1 text-sm">
+          <ul className="flex flex-wrap gap-2">
             {(verdict.topSources ?? []).slice(0, 3).map((item) => (
-              <li key={`top-${item.sourceUrl}`} className="text-zinc-700">
+              <li key={`top-${item.sourceUrl}`}>
                 <a
                   href={item.sourceUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="font-medium text-plum-700 hover:text-plum-500"
+                  className="inline-block border border-[#d4c4b0] px-2 py-1 text-[10px] uppercase tracking-[0.15em] text-[#b09a80]"
                 >
                   {item.sourceName}
                 </a>

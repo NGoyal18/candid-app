@@ -5,15 +5,10 @@ import { clearSkinProfile, loadSkinProfile, saveSkinProfile } from './services/s
 
 function AppShell({ children }: { children: React.ReactNode }) {
   return (
-    <main className="mx-auto flex min-h-screen w-full max-w-xl flex-col gap-6 px-4 py-6 sm:px-6">
-      <header className="space-y-2">
-        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-plum-700">SkinSense</p>
-        <h1 className="text-2xl font-bold tracking-tight text-zinc-950 sm:text-3xl">
-          Find out if this skincare product is right for you
-        </h1>
-        <p className="text-sm text-zinc-600">
-          Paste a product link. We synthesize web reviews through your skin profile.
-        </p>
+    <main className="mx-auto flex min-h-screen w-full max-w-[420px] flex-col gap-5 px-[28px] py-7">
+      <header className="space-y-1">
+        <h1 className="candid-display text-[38px] leading-none italic text-[#1c1208]">candid</h1>
+        <p className="text-[10px] uppercase tracking-[0.3em] text-[#9a8a72]">no filter. just facts.</p>
       </header>
       {children}
     </main>
@@ -25,9 +20,11 @@ function OnboardingPage() {
 
   return (
     <AppShell>
-      <section className="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
-        <h2 className="mb-1 text-lg font-semibold text-zinc-900">Your skin profile</h2>
-        <p className="mb-4 text-sm text-zinc-600">Takes under 90 seconds. Stored on your device only.</p>
+      <section className="border-[1.5px] border-[#d4c4b0] bg-[#fff8f0] p-5">
+        <h2 className="candid-display mb-1 text-xl italic text-[#1c1208]">your skin profile</h2>
+        <p className="mb-4 text-[10px] uppercase tracking-[0.2em] text-[#9a8a72]">
+          takes under 90 seconds. stored on your device only.
+        </p>
         <OnboardingForm
           initialProfile={loadSkinProfile()}
           onComplete={(profile) => {
@@ -48,8 +45,8 @@ function HomePage() {
 
   return (
     <AppShell>
-      <section className="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
-        <div className="mb-4 flex items-center justify-between gap-2 rounded-xl bg-zinc-100 p-3 text-xs text-zinc-700">
+      <section className="border-[1.5px] border-[#d4c4b0] bg-[#fff8f0] p-5">
+        <div className="mb-4 flex items-center justify-between gap-2 border border-[#d4c4b0] bg-[#fff8f0] p-3 text-[10px] uppercase tracking-[0.18em] text-[#9a8a72]">
           <span>
             Profile: {profile.skinType.replace('_', ' ')}, top concern{' '}
             {profile.topConcern.replace('_', ' ')}
@@ -60,7 +57,7 @@ function HomePage() {
               clearSkinProfile()
               window.location.href = '/onboarding'
             }}
-            className="rounded-md border border-zinc-300 px-2 py-1 font-medium text-zinc-700 hover:bg-zinc-200"
+            className="border border-[#d4c4b0] px-2 py-1 text-[10px] uppercase tracking-[0.2em] text-[#1c1208]"
           >
             Edit profile
           </button>

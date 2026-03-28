@@ -1,6 +1,6 @@
-# SkinSense MVP
+# candid MVP
 
-SkinSense helps shoppers decide whether a skincare product is likely to work for their skin profile by pulling real web/community discussion and synthesizing it into a verdict.
+candid helps shoppers decide whether a skincare product is likely to work for their skin profile by pulling real web/community discussion and synthesizing it into a verdict.
 
 ## Stack
 
