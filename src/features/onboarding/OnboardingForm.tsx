@@ -110,7 +110,7 @@ export function OnboardingForm({ initialProfile, onComplete }: OnboardingFormPro
               key={tone}
               onClick={() => setSkinTone(tone)}
               className={`border px-2 py-3 text-[10px] uppercase tracking-[0.1em] ${
-                skinTone === tone ? 'border-[#c45c2e] text-[#1c1208]' : 'border-[#d4c4b0] text-[#9a8a72]'
+                skinTone === tone ? 'border-[#6b1f2e] text-[#1c1208]' : 'border-[#d4c4b0] text-[#9a8a72]'
               }`}
             >
               <span
@@ -177,12 +177,12 @@ export function OnboardingForm({ initialProfile, onComplete }: OnboardingFormPro
       </div>
 
       {error ? (
-        <p className="border border-[#d4c4b0] bg-[#fff8f0] p-3 text-[11px] text-[#c45c2e]">{error}</p>
+        <p className="border border-[#d4c4b0] bg-[#fff8f0] p-3 text-[11px] text-[#6b1f2e]">{error}</p>
       ) : null}
 
       <button
         type="submit"
-        className="w-full border-[1.5px] border-[#1c1208] bg-[#fff8f0] px-4 py-3 text-[11px] uppercase tracking-[0.2em] text-[#c45c2e]"
+        className="w-full border-[1.5px] border-[#1c1208] bg-[#fff8f0] px-4 py-3 text-[11px] uppercase tracking-[0.2em] text-[#6b1f2e]"
       >
         Save skin profile
       </button>

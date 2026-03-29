@@ -38,6 +38,7 @@ function OnboardingPage() {
 }
 
 function HomePage() {
+  const navigate = useNavigate()
   const profile = loadSkinProfile()
   if (!profile) {
     return <Navigate to="/onboarding" replace />
@@ -55,7 +56,7 @@ function HomePage() {
             type="button"
             onClick={() => {
               clearSkinProfile()
-              window.location.href = '/onboarding'
+              navigate('/onboarding')
             }}
             className="border border-[#d4c4b0] px-2 py-1 text-[10px] uppercase tracking-[0.2em] text-[#1c1208]"
           >

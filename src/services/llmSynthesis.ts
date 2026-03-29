@@ -95,7 +95,7 @@ export async function enhanceVerdictWithLlm(
 
   const apiKey = import.meta.env.VITE_OPENROUTER_API_KEY as string | undefined
   if (!apiKey) {
-    throw new Error('Missing VITE_OPENROUTER_API_KEY. Add it in .env.local and restart the dev server.')
+    throw new Error('API key not configured. Please add VITE_OPENROUTER_API_KEY to your environment.')
   }
 
   const productTerms = [product.brand, product.name].flatMap((s) =>

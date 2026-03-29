@@ -77,13 +77,13 @@ export function ProductLinkForm({ profile }: ProductLinkFormProps) {
           <button
             type="submit"
             disabled={isLoading}
-            className="absolute right-4 top-1/2 -translate-y-1/2 text-[11px] font-bold uppercase tracking-[0.2em] text-[#c45c2e] disabled:opacity-50"
+            className="absolute right-4 top-1/2 -translate-y-1/2 text-[11px] font-bold uppercase tracking-[0.2em] text-[#6b1f2e] disabled:opacity-50"
           >
             {isLoading ? 'wait' : 'go →'}
           </button>
         </div>
         <p className="text-[10px] text-[#b09a80]">
-          we search reddit, influenster, beauty blogs + more
+          amazon, sephora, ulta, or target links only
         </p>
       </form>
 
@@ -94,11 +94,11 @@ export function ProductLinkForm({ profile }: ProductLinkFormProps) {
       ) : null}
 
       {error ? (
-        <p className="border border-[#d4c4b0] bg-[#fff8f0] p-3 text-[11px] text-[#c45c2e]">{error}</p>
+        <p className="border border-[#d4c4b0] bg-[#fff8f0] p-3 text-[11px] text-[#6b1f2e]">{error}</p>
       ) : null}
 
       {(verdict?.status === 'ready' || verdict?.status === 'insufficient' || isLoading) ? (
-        <p className="text-[10px] uppercase tracking-[0.3em] text-[#c45c2e]">↓ verdict for your skin</p>
+        <p className="text-[10px] uppercase tracking-[0.3em] text-[#6b1f2e]">↓ verdict for your skin</p>
       ) : null}
 
       {isLoading ? (

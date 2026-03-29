@@ -21,9 +21,9 @@ function verdictPill(recommendation: string | undefined, score: number | undefin
 
   // "should try" path — use score for holy grail vs worth it distinction.
   if (typeof score === 'number' && score >= 85) {
-    return { label: 'holy grail', classes: 'bg-[#6b8a2a] text-[#f5ede0]' }
+    return { label: 'holy grail', classes: 'bg-[#2e5c3a] text-[#f5ede0]' }
   }
-  return { label: 'worth it', classes: 'bg-[#c45c2e] text-[#fff8f0]' }
+  return { label: 'worth it', classes: 'bg-[#6b1f2e] text-[#fff8f0]' }
 }
 
 export function VerdictCard({ verdict, product }: VerdictCardProps) {
@@ -69,8 +69,8 @@ export function VerdictCard({ verdict, product }: VerdictCardProps) {
         ) : null}
 
         {verdict.reasoningSummary ? (
-          <div className="border-l-[3px] border-l-[#c45c2e] pl-3">
-            <p className="mb-2 text-[10px] uppercase tracking-[0.2em] text-[#c45c2e]">
+          <div className="border-l-[3px] border-l-[#6b1f2e] pl-3">
+            <p className="mb-2 text-[10px] uppercase tracking-[0.2em] text-[#6b1f2e]">
               Why this verdict
             </p>
             <div className="space-y-2 text-[12px] leading-[1.7] text-[#5a4a38]">
@@ -88,7 +88,7 @@ export function VerdictCard({ verdict, product }: VerdictCardProps) {
         <button
           type="button"
           onClick={() => setShowSources((value) => !value)}
-          className="text-[10px] uppercase tracking-[0.2em] text-[#c45c2e]"
+          className="text-[10px] uppercase tracking-[0.2em] text-[#6b1f2e]"
         >
           {showSources ? 'Hide top 3 sources' : 'Show top 3 sources'}
         </button>
