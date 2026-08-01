@@ -8,7 +8,7 @@ const SENTIMENT_VALUE = {
   negative: -1,
 } as const
 
-const MINIMUM_SOURCES = 5
+const MINIMUM_SOURCES = 3
 
 export interface VerdictHighlight {
   sourceName: string
@@ -90,13 +90,17 @@ function getConfidence(totalSources: number): 'low' | 'medium' | 'high' {
 }
 
 function getMatchSummary(score: number, profile: SkinProfile): string {
+  const skinType = profile.skinType === 'not_sure'
+    ? 'your skin type'
+    : `${profile.skinType.replace(/_/g, ' ')} skin`
+  const concern = profile.topConcern.replace(/_/g, ' ')
   if (score >= 75) {
-    return `Strong match for ${profile.skinType.replace('_', ' ')}, ${profile.topConcern.replace('_', ' ')} skin`
+    return `Strong match for ${skinType} with ${concern} concerns`
   }
   if (score >= 55) {
-    return `Moderate match for ${profile.skinType.replace('_', ' ')} skin`
+    return `Moderate match for ${skinType}`
   }
-  return `Potential mismatch for ${profile.skinType.replace('_', ' ')} skin`
+  return `Potential mismatch for ${skinType}`
 }
 
 function buildBottomLine(score: number, product: ParsedProduct): string {
@@ -122,7 +126,7 @@ function buildReasoningSummary(
   highlights: VerdictHighlight[],
   complaints: VerdictHighlight[],
 ): string {
-  const profileText = `${profile.skinType.replace('_', ' ')} skin with ${profile.topConcern.replace('_', ' ')} as the top concern`
+  const profileText = `${profile.skinType === 'not_sure' ? 'your skin type' : `${profile.skinType.replace(/_/g, ' ')} skin`} with ${profile.topConcern.replace(/_/g, ' ')} as the top concern`
   const sentimentTake =
     score >= 75
       ? 'Most comparable reviewers described steady, positive results with consistent use'
@@ -144,7 +148,7 @@ function buildReasoningSummary(
       ? `The strongest claims mention outcomes like: "${supportiveClaims || 'improved hydration and calmer skin'}".`
       : `The strongest caution claims mention issues like: "${cautionClaims || 'breakouts, irritation, or poor wear'}".`
 
-  return `This verdict prioritizes reviewers who explicitly match your profile (${profileText}) and gives extra weight to aligned sensitivity and concern overlap. ${sentimentTake}. ${claimsLine} We still keep top linked sources available so you can verify the evidence directly if you want to go deeper.`
+  return `This verdict prioritizes reviewers who match your profile (${profileText}), giving extra weight to sensitivity and concern alignment. ${sentimentTake}. ${claimsLine} Top sources are linked so you can verify the evidence directly.`
 }
 
 export function synthesizeVerdict(

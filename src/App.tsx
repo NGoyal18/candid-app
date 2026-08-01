@@ -1,6 +1,6 @@
 import { Navigate, Route, Routes, useNavigate } from 'react-router-dom'
 import { OnboardingForm } from './features/onboarding/OnboardingForm'
-import { ProductLinkForm } from './features/verdict/ProductLinkForm'
+import { ProductSearchForm } from './features/verdict/ProductSearchForm'
 import { clearSkinProfile, loadSkinProfile, saveSkinProfile } from './services/storage'
 
 function AppShell({ children }: { children: React.ReactNode }) {
@@ -63,7 +63,7 @@ function HomePage() {
             Edit profile
           </button>
         </div>
-        <ProductLinkForm profile={profile} />
+        <ProductSearchForm profile={profile} />
       </section>
     </AppShell>
   )

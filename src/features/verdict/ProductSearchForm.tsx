@@ -1,19 +1,19 @@
 import { useState } from 'react'
 import type { SkinProfile } from '../onboarding/types'
 import { searchReviews } from '../../services/mockReviewSearch'
-import { parseProductFromUrl, type ParsedProduct } from '../../services/productParser'
+import { parseProductFromQuery, type ParsedProduct } from '../../services/productParser'
 import { filterReviewsForProfile, synthesizeVerdict, type Verdict, MINIMUM_SOURCES } from '../../services/synthesisEngine'
 import { enhanceVerdictWithLlm } from '../../services/llmSynthesis'
 import { extractProductIngredients } from '../../services/productIngredients'
 import { SparseDataState } from './sparseData'
 import { VerdictCard } from './VerdictCard'
 
-interface ProductLinkFormProps {
+interface ProductSearchFormProps {
   profile: SkinProfile
 }
 
-export function ProductLinkForm({ profile }: ProductLinkFormProps) {
-  const [urlInput, setUrlInput] = useState('')
+export function ProductSearchForm({ profile }: ProductSearchFormProps) {
+  const [queryInput, setQueryInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [product, setProduct] = useState<ParsedProduct | null>(null)
@@ -29,16 +29,16 @@ export function ProductLinkForm({ profile }: ProductLinkFormProps) {
     try {
       let parsedProduct: ParsedProduct
       try {
-        parsedProduct = await parseProductFromUrl(urlInput.trim())
+        parsedProduct = await parseProductFromQuery(queryInput.trim())
         setProduct(parsedProduct)
       } catch (parsingError) {
-        setError(parsingError instanceof Error ? parsingError.message : 'Invalid URL')
+        setError(parsingError instanceof Error ? parsingError.message : 'Invalid product name')
         return
       }
 
       const [reviews, productIngredients] = await Promise.all([
         searchReviews(parsedProduct),
-        extractProductIngredients(parsedProduct.originalUrl),
+        extractProductIngredients(parsedProduct.brand, parsedProduct.name),
       ])
       const matchedReviews = filterReviewsForProfile(profile, reviews)
       const reviewsForSynthesis = matchedReviews.length >= MINIMUM_SOURCES ? matchedReviews : reviews
@@ -55,7 +55,7 @@ export function ProductLinkForm({ profile }: ProductLinkFormProps) {
       if (analysisError instanceof Error) {
         setError(analysisError.message)
       } else {
-        setError('Could not analyze this link right now. Please try again.')
+        setError('Could not analyze this product right now. Please try again.')
       }
     } finally {
       setIsLoading(false)
@@ -67,12 +67,12 @@ export function ProductLinkForm({ profile }: ProductLinkFormProps) {
       <form className="space-y-2" onSubmit={handleAnalyze}>
         <div className="relative">
           <input
-            type="url"
+            type="text"
             required
-            value={urlInput}
-            onChange={(event) => setUrlInput(event.target.value)}
+            value={queryInput}
+            onChange={(event) => setQueryInput(event.target.value)}
             className="w-full border-[1.5px] border-[#1c1208] bg-[#fff8f0] px-4 py-[14px] pr-20 text-[12px] text-[#1c1208] outline-none placeholder:text-[#9a8a72]"
-            placeholder="paste a product link..."
+            placeholder="e.g. CeraVe Moisturizing Cream"
           />
           <button
             type="submit"
@@ -83,7 +83,7 @@ export function ProductLinkForm({ profile }: ProductLinkFormProps) {
           </button>
         </div>
         <p className="text-[10px] text-[#b09a80]">
-          amazon, sephora, ulta, or target links only
+          type a product name — brand + product works best
         </p>
       </form>
 

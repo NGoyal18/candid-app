@@ -13,8 +13,6 @@ const profile: SkinProfile = {
 }
 
 const product: ParsedProduct = {
-  originalUrl: 'https://example.com/products/test-cleanser',
-  host: 'example.com',
   brand: 'Example',
   name: 'Test Cleanser',
   query: 'Example Test Cleanser',
