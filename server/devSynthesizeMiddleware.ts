@@ -1,5 +1,5 @@
 import type { Connect } from 'vite'
-import { callOpenRouter } from './openrouter'
+import { callOpenRouter } from './openrouter.js'
 
 export function createDevSynthesizeMiddleware(apiKey: string | undefined): Connect.NextHandleFunction {
   return async (req, res, next) => {

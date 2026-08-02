@@ -1,5 +1,5 @@
-import { getRedditAccessToken, REDDIT_USER_AGENT } from './redditAuth'
-import { isUnsafeText } from './contentSafety'
+import { getRedditAccessToken, REDDIT_USER_AGENT } from './redditAuth.js'
+import { isUnsafeText } from './contentSafety.js'
 
 export interface ReviewSource {
   id: string

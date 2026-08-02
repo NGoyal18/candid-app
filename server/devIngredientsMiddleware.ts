@@ -1,5 +1,5 @@
 import type { Connect } from 'vite'
-import { extractProductIngredients } from './ingredientSearch'
+import { extractProductIngredients } from './ingredientSearch.js'
 
 export function createDevIngredientsMiddleware(jinaApiKey: string | undefined): Connect.NextHandleFunction {
   return async (req, res, next) => {

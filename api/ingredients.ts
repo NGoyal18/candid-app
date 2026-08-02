@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
-import { extractProductIngredients } from '../server/ingredientSearch'
+import { extractProductIngredients } from '../server/ingredientSearch.js'
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') {

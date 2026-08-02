@@ -1,5 +1,5 @@
 import type { Connect } from 'vite'
-import { searchReviews, type ReviewSearchCredentials } from './reviewSearch'
+import { searchReviews, type ReviewSearchCredentials } from './reviewSearch.js'
 
 export function createDevReviewsMiddleware(credentials: ReviewSearchCredentials): Connect.NextHandleFunction {
   return async (req, res, next) => {
