@@ -3,6 +3,7 @@ import type { Verdict } from './synthesisEngine'
 import type { ReviewSource } from './mockReviewSearch'
 import type { ParsedProduct } from './productParser'
 import { isUnsafeText } from './contentSafety'
+import { hasQualityIssues } from './textQuality'
 
 interface OpenRouterResponse {
   choices?: Array<{
@@ -127,6 +128,7 @@ export async function enhanceVerdictWithLlm(
       : 'Do NOT include ingredient analysis — no ingredients were provided. Do not speculate about ingredients based on the product name or general knowledge.',
     'beneficialIngredients and cautionIngredients: populate only from the provided ingredients list. If no ingredients list was provided, return empty arrays.',
     'Tone: direct and informative. Write like a knowledgeable friend, not a marketing copy or a legal disclaimer. Use grammatically correct, complete sentences.',
+    'Before finalizing, proofread every field: correct grammar, spelling, and punctuation; make sure every sentence is complete and ends with proper punctuation; remove doubled words. Do not mention this proofreading step in the output.',
     'Keep it concise — every sentence must add value. Cut anything vague or repetitive.',
     `Product: ${product.brand} ${product.name}`,
     `User skin profile: ${profile.skinType.replace(/_/g, ' ')} skin, top concern: ${profile.topConcern.replace(/_/g, ' ')}, secondary: ${profile.secondaryConcerns.map((c) => c.replace(/_/g, ' ')).join(', ')}, sensitivity: ${profile.sensitivity.replace(/_/g, ' ')}`,
@@ -179,16 +181,30 @@ export async function enhanceVerdictWithLlm(
       return verdict
     }
 
+    // Per-field grammar/quality gate: only take the model's text for fields that pass —
+    // any field with doubled words, missing punctuation, or similar issues falls back to
+    // the deterministic (template-generated) value instead of showing broken text.
+    const cleanField = (value: string | undefined, fallback: string | undefined): string | undefined =>
+      value && !hasQualityIssues(value) ? value : fallback
+
+    const cleanIngredientList = (
+      list: Array<{ name: string; rationale: string }> | undefined,
+    ): Array<{ name: string; rationale: string }> | undefined =>
+      list?.map((item) => ({
+        name: item.name,
+        rationale: hasQualityIssues(item.rationale) ? 'Frequently referenced in matched reviews.' : item.rationale,
+      }))
+
     return {
       ...verdict,
-      matchSummary: patch.matchSummary || verdict.matchSummary,
-      recommendation: patch.recommendation || verdict.recommendation,
-      reasoningSummary: patch.reasoningSummary || verdict.reasoningSummary,
+      matchSummary: cleanField(patch.matchSummary, verdict.matchSummary),
+      recommendation: cleanField(patch.recommendation, verdict.recommendation),
+      reasoningSummary: cleanField(patch.reasoningSummary, verdict.reasoningSummary),
       beneficialIngredients:
-        normalizeIngredientList(patch.beneficialIngredients) || verdict.beneficialIngredients,
+        cleanIngredientList(normalizeIngredientList(patch.beneficialIngredients)) || verdict.beneficialIngredients,
       cautionIngredients:
-        normalizeIngredientList(patch.cautionIngredients) || verdict.cautionIngredients,
-      bottomLine: patch.bottomLine || verdict.bottomLine,
+        cleanIngredientList(normalizeIngredientList(patch.cautionIngredients)) || verdict.cautionIngredients,
+      bottomLine: cleanField(patch.bottomLine, verdict.bottomLine),
     }
   } catch (error) {
     // Only hard-throw for network/auth failures, not JSON parse issues.
