@@ -223,6 +223,15 @@ const BRAND_DOMAINS = new Set([
   'laroche-posay.us', 'laroche-posay.com', 'cerave.com',
   'cetaphil.com', 'cosrx.com', 'tatcha.com', 'paulaschoice.com',
   'theordinary.com', 'skinceuticals.com', 'innisfree.com',
+  'elfcosmetics.com',
+])
+
+// Login-gated / JS-rendered platforms Jina's reader can't meaningfully extract text from
+// (returns CAPTCHA walls, empty shells, or requires auth) — skip them rather than burn a
+// candidate slot on a page we can't actually read.
+const UNREADABLE_DOMAINS = new Set([
+  'instagram.com', 'facebook.com', 'tiktok.com',
+  'youtube.com', 'youtu.be', 'x.com', 'twitter.com', 'pinterest.com',
 ])
 
 const BLOCKED_CONTENT =
@@ -241,7 +250,7 @@ async function fetchCommunityReviewsFromSearch(
     .filter((result) => {
       try {
         const hostname = new URL(result.url as string).hostname.replace(/^www\./, '')
-        return !BRAND_DOMAINS.has(hostname)
+        return !BRAND_DOMAINS.has(hostname) && !UNREADABLE_DOMAINS.has(hostname)
       } catch {
         return false
       }
@@ -282,7 +291,13 @@ function dedupeSources(reviews: ReviewSource[]): ReviewSource[] {
   })
 }
 
-export async function searchReviews(
+// Jina's search results are noticeably non-deterministic — the identical query can return
+// anywhere from 0 to 8+ usable sources on back-to-back calls. Below this count, it's worth
+// paying for a second round rather than showing "not enough data" on what was really just
+// an unlucky search.
+const RETRY_BELOW_COUNT = 3
+
+async function fetchAndFilter(
   product: ProductQuery,
   credentials: ReviewSearchCredentials,
 ): Promise<ReviewSource[]> {
@@ -299,4 +314,17 @@ export async function searchReviews(
   // Scraped from arbitrary web pages — drop anything that looks like a prompt-injection
   // attempt or otherwise unsafe content before it ever reaches the LLM prompt or the UI.
   return merged.filter((review) => !isUnsafeText(review.quote) && !isUnsafeText(review.sourceName))
+}
+
+export async function searchReviews(
+  product: ProductQuery,
+  credentials: ReviewSearchCredentials,
+): Promise<ReviewSource[]> {
+  const first = await fetchAndFilter(product, credentials)
+  if (first.length >= RETRY_BELOW_COUNT) {
+    return first
+  }
+
+  const retry = await fetchAndFilter(product, credentials)
+  return dedupeSources([...first, ...retry])
 }
