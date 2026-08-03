@@ -125,12 +125,9 @@ function classifySourceName(url: string, fallback?: string): string {
   }
 }
 
-async function searchWebResults(product: ProductQuery, jinaApiKey?: string): Promise<JinaSearchResult[]> {
-  if (!jinaApiKey) return []
-
-  const shortName = product.name.split(' ').slice(0, 3).join(' ')
-  const query = encodeURIComponent(`${product.brand} ${shortName} review reddit influenster beauty blog`)
-  const response = await fetch(`https://s.jina.ai/?q=${query}&output_format=json`, {
+async function searchWebResultsForQuery(query: string, jinaApiKey: string): Promise<JinaSearchResult[]> {
+  const encoded = encodeURIComponent(query)
+  const response = await fetch(`https://s.jina.ai/?q=${encoded}&output_format=json`, {
     headers: { Authorization: `Bearer ${jinaApiKey}`, Accept: 'application/json' },
     signal: AbortSignal.timeout(12000),
   })
@@ -142,6 +139,31 @@ async function searchWebResults(product: ProductQuery, jinaApiKey?: string): Pro
   } catch {
     return []
   }
+}
+
+// A single search query is fragile — for less-searched products it can easily surface the
+// brand's own site, Wikipedia, or retailer pages instead of reviews. Fan out to a few
+// differently-worded queries and merge the results, since each phrasing tends to surface a
+// different slice of what's actually out there.
+async function searchWebResults(product: ProductQuery, jinaApiKey?: string): Promise<JinaSearchResult[]> {
+  if (!jinaApiKey) return []
+
+  const shortName = product.name.split(' ').slice(0, 3).join(' ')
+  const queries = [
+    `${product.brand} ${shortName} review reddit influenster beauty blog`,
+    `${product.brand} ${shortName} reddit review`,
+    `${product.brand} ${shortName} review`,
+  ]
+
+  const results = await Promise.allSettled(queries.map((query) => searchWebResultsForQuery(query, jinaApiKey)))
+  const merged = results.flatMap((result) => (result.status === 'fulfilled' ? result.value : []))
+
+  const seen = new Set<string>()
+  return merged.filter((result) => {
+    if (!result.url || seen.has(result.url)) return false
+    seen.add(result.url)
+    return true
+  })
 }
 
 async function fetchSourceSnippet(url: string): Promise<string | null> {
@@ -224,7 +246,7 @@ async function fetchCommunityReviewsFromSearch(
         return false
       }
     })
-    .slice(0, 10)
+    .slice(0, 20)
 
   const snippets = await Promise.allSettled(
     prioritized.map(async (result) => {
